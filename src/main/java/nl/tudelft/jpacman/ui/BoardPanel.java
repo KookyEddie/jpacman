@@ -3,6 +3,10 @@ package nl.tudelft.jpacman.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.beans.Transient;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 
 import javax.swing.JPanel;
 
@@ -17,7 +21,7 @@ import nl.tudelft.jpacman.game.Game;
  * @author Jeroen Roosen 
  *
  */
-class BoardPanel extends JPanel {
+class BoardPanel extends JPanel implements Serializable {
 
     /**
      * Default serialisation ID.
@@ -38,7 +42,7 @@ class BoardPanel extends JPanel {
     /**
      * The game to display.
      */
-    private final Game game;
+    private transient Game game;
 
     /**
      * Creates a new board panel that will display the provided game.
@@ -48,7 +52,9 @@ class BoardPanel extends JPanel {
      */
     BoardPanel(Game game) {
         super();
-        assert game != null;
+        if (game == null) {
+            throw new IllegalArgumentException("Game cannot be null.");
+        }
         this.game = game;
 
         Board board = game.getLevel().getBoard();
@@ -63,7 +69,9 @@ class BoardPanel extends JPanel {
 
     @Override
     public void paint(Graphics g) {
-        assert g != null;
+        if (g == null){
+            throw new IllegalArgumentException("g cannot be null");
+        }
         render(game.getLevel().getBoard(), g, getSize());
     }
 
@@ -117,4 +125,17 @@ class BoardPanel extends JPanel {
             unit.getSprite().draw(graphics, x, y, width, height);
         }
     }
+
+    /**
+     *
+     * @param in 
+     * @throws IOException 
+     * @throws ClassNotFoundException 
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        throw new IOException("Game state cannot be restored after deserialization.");
+    }
+
+    
 }
